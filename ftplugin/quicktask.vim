@@ -37,7 +37,6 @@ let b:undo_ftplugin .= '|setlocal comments< formatoptions< spell< wrap< textwidt
 " Set all buffer-local settings: {{{1
 setlocal comments=b:#,f:-,f:*
 setlocal formatoptions=qnwta
-setlocal spell
 setlocal wrap
 setlocal textwidth=80
 
