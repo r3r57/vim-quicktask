@@ -52,7 +52,7 @@ syn match   quicktaskNote           /^\s\+[*]\s.*$/ nextgroup=quicktaskNoteCont 
                                     \ quicktaskConstant,quicktaskDatestamp,quicktaskTimestamp,
                                     \ quicktaskSnip,quicktaskIncomplete,quicktaskUsername
 
-syn match   quicktaskTimeNote       /^\s\+[@]\s\(Added\|Start\|DONE\|DEADLINE\).*$/
+syn match   quicktaskTimeNote       /^\s\+[@]\s\(Added\|Start\|DONE\|DEADLINE\|Ticket\).*$/
                                     \ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
                                     \ quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
                                     \ quicktaskIncomplete
@@ -72,7 +72,7 @@ syn match   quicktaskIncomplete     display '@ Start \[... \d\+-\d\+-\d\+\] \[\d
                                     \ contains=quicktaskDatestamp
 
 " JIRA tickets, e.g. PROJECTNAME-1234
-syn match   quicktaskTicket         display '\C[A-Z]\+-[0-9]\+'
+" syn match   quicktaskTicket         display '\C[A-Z]\+-[0-9]\+'
 
 " The remainder of items are case-insensitive.
 syn case ignore

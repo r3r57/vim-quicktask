@@ -413,11 +413,11 @@ function! s:AddNoteToTask()
 endfunction
 
 " ============================================================================
-" AddDeadline(): Add deadline (DEADLINE). {{{1
+" AddTag(): Add tag (@ ...). {{{1
 "
 " Mark a task as complete by placing a note at the very end of the task
 " containing the keyword DEADLINE.
-function! s:AddDeadline()
+function! s:AddTag(tag)
     " If we are not on a task line right now, we need to search up for one.
     call s:FindTaskStart(1)
 
@@ -447,7 +447,7 @@ function! s:AddDeadline()
     endwhile
 
     let physical_indent = repeat(" ", indent)
-    call append(start, physical_indent."@ DEADLINE ")
+    call append(start, physical_indent."@ ".a:tag." ")
     call cursor(start+1, len(getline(start+1)))
     startinsert!
 endfunction
@@ -576,7 +576,8 @@ endfunction
 " ============================================================================
 " Private mappings {{{1
 nmap <silent> <Plug>SelectTask               :call <SID>SelectTask()<CR>
-nmap <silent> <Plug>AddDeadline              :call <SID>AddDeadline()<CR>
+nmap <silent> <Plug>AddTicketTag             :call <SID>AddTag("Ticket")<CR>
+nmap <silent> <Plug>AddDeadlineTag           :call <SID>AddTag("DEADLINE")<CR>
 nmap <silent> <Plug>UpdateStatusReady        :call <SID>UpdateStatus("READY")<CR>
 nmap <silent> <Plug>UpdateStatusWIP          :call <SID>UpdateStatus("WIP")<CR>
 nmap <silent> <Plug>UpdateStatusHold         :call <SID>UpdateStatus("HOLD")<CR>
@@ -590,7 +591,8 @@ nmap <silent> <Plug>AddChildTask             :call <SID>AddChildTask()<CR>
 " Public mappings {{{1
 if ! g:quicktask_no_mappings && ! exists('b:quicktask_did_mappings')
     nmap <unique><buffer> <Leader>tv  <Plug>SelectTask
-    nmap <unique><buffer> <Leader>tad <Plug>AddDeadline
+    nmap <unique><buffer> <Leader>tat <Plug>AddTicketTag
+    nmap <unique><buffer> <Leader>tad <Plug>AddDeadlineTag
     nmap <unique><buffer> <Leader>tur <Plug>UpdateStatusReady
     nmap <unique><buffer> <Leader>tuw <Plug>UpdateStatusWIP
     nmap <unique><buffer> <Leader>tuh <Plug>UpdateStatusHold
