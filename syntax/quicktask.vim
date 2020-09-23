@@ -39,31 +39,31 @@ syn match   quicktaskSection        '^.*:\s*$'
 
 syn match   quicktaskTask           '^\(\s*\)-.\{-}\n\%(\1[^-*]\{-}\n\)*'
                                     \ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
-                                    \ quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,quicktaskUsername
+                                    \ quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,quicktaskUsername,
+                                    \ quicktaskHold
 
 syn match   quicktaskNoteCont       /^\s\+[^-*@ ].*$/ contained nextgroup=quicktaskNoteCont,quicktaskNote skipnl
                                     \ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
-                                    \ quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
+                                    \ quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
                                     \ quicktaskIncomplete,quicktaskUsername
 
 syn match   quicktaskNote           /^\s\+[*]\s.*$/ nextgroup=quicktaskNoteCont skipnl
                                     \ contains=quicktaskNoteCont,quicktaskMarker,quicktaskTicket,@Spell,
-                                    \ quicktaskConstant,quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,
+                                    \ quicktaskConstant,quicktaskDatestamp,quicktaskTimestamp,
                                     \ quicktaskSnip,quicktaskIncomplete,quicktaskUsername
 
-syn match   quicktaskTimeNote       /^\s\+[@]\s\(Added\|Start\|DONE\).*$/
+syn match   quicktaskTimeNote       /^\s\+[@]\s\(Added\|Start\|DONE\|DEADLINE\).*$/
                                     \ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
-                                    \ quicktaskDone,quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
+                                    \ quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,
                                     \ quicktaskIncomplete
 
 " The following items are case-sensitive.
 syn case match
 
 " Highlight keywords in todo items and notes:
-" TODO, FIXME, NOTE, WTF are self-explanatory.
-" AFB = Awaiting Feedback, ENH = Enhancement
-syn keyword quicktaskMarker         contained TODO FIXME NOTE ENH WTF AFB ???
-syn keyword quicktaskDone           contained DONE WATCH HELD
+syn keyword quicktaskMarker         contained READY WIP DONE
+syn keyword quicktaskHold           contained HOLD
+syn keyword quicktaskIncomplete     contained DEADLINE
 
 " Dates and times
 syn match   quicktaskDatestamp      display '\[... \d\+-\d\+-\d\+\( \d\+:\d\+\)\?\]'
@@ -95,7 +95,7 @@ hi def link quicktaskSection        Title
 hi def link quicktaskTask           Normal
 hi def link quicktaskNote           String
 hi def link quicktaskNoteCont       String
-hi def link quicktaskDone           Constant
+hi def link quicktaskHold           Constant
 hi def link quicktaskMarker         Todo
 hi def link quicktaskComment        Comment
 hi def link quicktaskSnip           Number
