@@ -447,11 +447,13 @@ function! s:AddTag(tag, move_cursor)
     endwhile
 
     let physical_indent = repeat(" ", indent)
-    call append(start, physical_indent."@ ".a:tag." ")
 
     if a:move_cursor
+      call append(start, physical_indent."@ ".a:tag." ")
       call cursor(start+1, len(getline(start+1)))
       startinsert!
+    else
+      call append(start, physical_indent."@ ".a:tag)
     endif
 endfunction
 
