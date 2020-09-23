@@ -562,14 +562,14 @@ function! OpenFoldIfClosed()
 endfunction
 
 " ============================================================================
-" ShowActiveTasksOnly(): Fold all completed tasks. {{{1
+" HideTasks(): Fold all completed tasks. {{{1
 "
 " The net result is that only incomplete (active) tasks remain open and
 " visible in the list.
-function! s:ShowActiveTasksOnly()
+function! s:HideTasks(status)
     let current_line = line('.')
     execute "normal! zR"
-    execute "g/- DONE/call CloseFoldIfOpen()"
+    execute "g/- ".a:status."/call CloseFoldIfOpen()"
     call cursor(current_line, 0)
 endfunction
 
@@ -582,7 +582,10 @@ nmap <silent> <Plug>UpdateStatusReady        :call <SID>UpdateStatus("READY")<CR
 nmap <silent> <Plug>UpdateStatusWIP          :call <SID>UpdateStatus("WIP")<CR>
 nmap <silent> <Plug>UpdateStatusHold         :call <SID>UpdateStatus("HOLD")<CR>
 nmap <silent> <Plug>UpdateStatusDone         :call <SID>UpdateStatus("DONE")<CR>
-nmap <silent> <Plug>ShowActiveTasksOnly      :call <SID>ShowActiveTasksOnly()<CR>
+nmap <silent> <Plug>ShowActiveTasksOnly      :call <SID>HideTasks("DONE")<CR>
+nmap <silent> <Plug>ShowReadyTasksOnly       :call <SID>HideTasks("\\(WIP\\\|HOLD\\\|DONE\\)")<CR>
+nmap <silent> <Plug>ShowWIPTasksOnly         :call <SID>HideTasks("\\(READY\\\|HOLD\\\|DONE\\)")<CR>
+nmap <silent> <Plug>ShowHoldTasksOnly        :call <SID>HideTasks("\\(READY\\\|WIP\\\|DONE\\)")<CR>
 nmap <silent> <Plug>AddTaskAbove             :call <SID>AddTaskAbove()<CR>
 nmap <silent> <Plug>AddTaskBelow             :call <SID>AddTaskBelow()<CR>
 nmap <silent> <Plug>AddNoteToTask            :call <SID>AddNoteToTask()<CR>
@@ -598,6 +601,9 @@ if ! g:quicktask_no_mappings && ! exists('b:quicktask_did_mappings')
     nmap <unique><buffer> <Leader>tuh <Plug>UpdateStatusHold
     nmap <unique><buffer> <Leader>tud <Plug>UpdateStatusDone
     nmap <unique><buffer> <Leader>tsa <Plug>ShowActiveTasksOnly
+    nmap <unique><buffer> <Leader>tsr <Plug>ShowReadyTasksOnly
+    nmap <unique><buffer> <Leader>tsw <Plug>ShowWIPTasksOnly
+    nmap <unique><buffer> <Leader>tsh <Plug>ShowHoldTasksOnly
     nmap <unique><buffer> <Leader>tO  <Plug>AddTaskAbove
     nmap <unique><buffer> <Leader>to  <Plug>AddTaskBelow
     nmap <unique><buffer> <Leader>tan <Plug>AddNoteToTask
@@ -618,7 +624,7 @@ endif
 if g:quicktask_fold_done_on_startup
     augroup quicktask
       au!
-      autocmd BufEnter * call <SID>ShowActiveTasksOnly()
+      autocmd BufEnter * call <SID>HideTasks("DONE")
     augroup END
 endif
 
