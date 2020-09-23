@@ -417,7 +417,7 @@ endfunction
 "
 " Mark a task as complete by placing a note at the very end of the task
 " containing the keyword DEADLINE.
-function! s:AddTag(tag)
+function! s:AddTag(tag, move_cursor)
     " If we are not on a task line right now, we need to search up for one.
     call s:FindTaskStart(1)
 
@@ -448,8 +448,11 @@ function! s:AddTag(tag)
 
     let physical_indent = repeat(" ", indent)
     call append(start, physical_indent."@ ".a:tag." ")
-    call cursor(start+1, len(getline(start+1)))
-    startinsert!
+
+    if a:move_cursor
+      call cursor(start+1, len(getline(start+1)))
+      startinsert!
+    endif
 endfunction
 
 " ============================================================================
@@ -464,6 +467,7 @@ function! s:UpdateStatus(status)
     call setline(line('.'), substitute(getline('.'), '\(READY\|WIP\|HOLD\|DONE\)', a:status, ""))
 
     if a:status == "DONE"
+      call s:AddTag("Done ".s:GetDatestamp('today')." ".s:GetTimestamp(), 0)
       :normal! zc
     else
       :normal! zo
@@ -576,8 +580,8 @@ endfunction
 " ============================================================================
 " Private mappings {{{1
 nmap <silent> <Plug>SelectTask               :call <SID>SelectTask()<CR>
-nmap <silent> <Plug>AddTicketTag             :call <SID>AddTag("Ticket")<CR>
-nmap <silent> <Plug>AddDeadlineTag           :call <SID>AddTag("DEADLINE")<CR>
+nmap <silent> <Plug>AddTicketTag             :call <SID>AddTag("Ticket", 1)<CR>
+nmap <silent> <Plug>AddDeadlineTag           :call <SID>AddTag("DEADLINE", 1)<CR>
 nmap <silent> <Plug>UpdateStatusReady        :call <SID>UpdateStatus("READY")<CR>
 nmap <silent> <Plug>UpdateStatusWIP          :call <SID>UpdateStatus("WIP")<CR>
 nmap <silent> <Plug>UpdateStatusHold         :call <SID>UpdateStatus("HOLD")<CR>
