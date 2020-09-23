@@ -458,7 +458,7 @@ function! s:AddTag(tag, move_cursor)
 endfunction
 
 " ============================================================================
-" UpdateStatus(): Update status (READY, WIP, WAIT). {{{1
+" UpdateStatus(): Update status (READY, WIP, HOLD, WAIT, DONE). {{{1
 "
 " Mark a task as complete by placing a note at the very end of the task
 " containing the keyword DONE followed by the current timestamp.
@@ -585,13 +585,15 @@ nmap <silent> <Plug>SelectTask               :call <SID>SelectTask()<CR>
 nmap <silent> <Plug>AddTicketTag             :call <SID>AddTag("Ticket", 1)<CR>
 nmap <silent> <Plug>AddDeadlineTag           :call <SID>AddTag("DEADLINE", 1)<CR>
 nmap <silent> <Plug>UpdateStatusReady        :call <SID>UpdateStatus("READY")<CR>
-nmap <silent> <Plug>UpdateStatusWIP          :call <SID>UpdateStatus("WIP")<CR>
+nmap <silent> <Plug>UpdateStatusWip          :call <SID>UpdateStatus("WIP")<CR>
 nmap <silent> <Plug>UpdateStatusHold         :call <SID>UpdateStatus("HOLD")<CR>
+nmap <silent> <Plug>UpdateStatusWait         :call <SID>UpdateStatus("WAIT")<CR>
 nmap <silent> <Plug>UpdateStatusDone         :call <SID>UpdateStatus("DONE")<CR>
 nmap <silent> <Plug>ShowActiveTasksOnly      :call <SID>HideTasks("DONE")<CR>
-nmap <silent> <Plug>ShowReadyTasksOnly       :call <SID>HideTasks("\\(WIP\\\|HOLD\\\|DONE\\)")<CR>
-nmap <silent> <Plug>ShowWIPTasksOnly         :call <SID>HideTasks("\\(READY\\\|HOLD\\\|DONE\\)")<CR>
-nmap <silent> <Plug>ShowHoldTasksOnly        :call <SID>HideTasks("\\(READY\\\|WIP\\\|DONE\\)")<CR>
+nmap <silent> <Plug>ShowReadyTasksOnly       :call <SID>HideTasks("\\(WIP\\\|HOLD\\\|WAIT\\\|DONE\\)")<CR>
+nmap <silent> <Plug>ShowWipTasksOnly         :call <SID>HideTasks("\\(READY\\\|HOLD\\\|WAIT\\\|DONE\\)")<CR>
+nmap <silent> <Plug>ShowHoldTasksOnly        :call <SID>HideTasks("\\(READY\\\|WIP\\\|WAIT\\\|DONE\\)")<CR>
+nmap <silent> <Plug>ShowWaitTasksOnly        :call <SID>HideTasks("\\(READY\\\|WIP\\\|HOLD\\\|DONE\\)")<CR>
 nmap <silent> <Plug>AddTaskAbove             :call <SID>AddTaskAbove()<CR>
 nmap <silent> <Plug>AddTaskBelow             :call <SID>AddTaskBelow()<CR>
 nmap <silent> <Plug>AddNoteToTask            :call <SID>AddNoteToTask()<CR>
@@ -603,13 +605,15 @@ if ! g:quicktask_no_mappings && ! exists('b:quicktask_did_mappings')
     nmap <unique><buffer> <Leader>tat <Plug>AddTicketTag
     nmap <unique><buffer> <Leader>tad <Plug>AddDeadlineTag
     nmap <unique><buffer> <Leader>tur <Plug>UpdateStatusReady
-    nmap <unique><buffer> <Leader>tuw <Plug>UpdateStatusWIP
+    nmap <unique><buffer> <Leader>tuw <Plug>UpdateStatusWip
     nmap <unique><buffer> <Leader>tuh <Plug>UpdateStatusHold
+    nmap <unique><buffer> <Leader>tut <Plug>UpdateStatusWait
     nmap <unique><buffer> <Leader>tud <Plug>UpdateStatusDone
     nmap <unique><buffer> <Leader>tsa <Plug>ShowActiveTasksOnly
     nmap <unique><buffer> <Leader>tsr <Plug>ShowReadyTasksOnly
     nmap <unique><buffer> <Leader>tsw <Plug>ShowWIPTasksOnly
     nmap <unique><buffer> <Leader>tsh <Plug>ShowHoldTasksOnly
+    nmap <unique><buffer> <Leader>tst <Plug>ShowWaitTasksOnly
     nmap <unique><buffer> <Leader>tO  <Plug>AddTaskAbove
     nmap <unique><buffer> <Leader>to  <Plug>AddTaskBelow
     nmap <unique><buffer> <Leader>tan <Plug>AddNoteToTask

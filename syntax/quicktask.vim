@@ -40,7 +40,7 @@ syn match   quicktaskSection        '^.*:\s*$'
 syn match   quicktaskTask           '^\(\s*\)-.\{-}\n\%(\1[^-*]\{-}\n\)*'
                                     \ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
                                     \ quicktaskDatestamp,quicktaskTimestamp,quicktaskSnip,quicktaskUsername,
-                                    \ quicktaskHold
+                                    \ quicktaskWait
 
 syn match   quicktaskNoteCont       /^\s\+[^-*@ ].*$/ contained nextgroup=quicktaskNoteCont,quicktaskNote skipnl
                                     \ contains=quicktaskMarker,quicktaskTicket,@Spell,quicktaskConstant,
@@ -62,7 +62,7 @@ syn case match
 
 " Highlight keywords in todo items and notes:
 syn keyword quicktaskMarker         contained READY WIP DONE
-syn keyword quicktaskHold           contained HOLD
+syn keyword quicktaskWait           contained HOLD WAIT
 syn keyword quicktaskIncomplete     contained DEADLINE
 
 " Dates and times
@@ -95,7 +95,7 @@ hi def link quicktaskSection        Title
 hi def link quicktaskTask           Normal
 hi def link quicktaskNote           String
 hi def link quicktaskNoteCont       String
-hi def link quicktaskHold           Constant
+hi def link quicktaskWait           Constant
 hi def link quicktaskMarker         Todo
 hi def link quicktaskComment        Comment
 hi def link quicktaskSnip           Number
