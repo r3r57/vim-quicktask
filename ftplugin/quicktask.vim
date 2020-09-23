@@ -45,10 +45,6 @@ setlocal expandtab
 setlocal shiftwidth=2
 setlocal tabstop=2
 
-" Add the 'at' sign to the list of keyword characters so that our
-" abbreviations may use it.
-setlocal iskeyword=@,@-@,48-57,_,192-255
-
 " Folding settings
 setlocal foldmethod=expr
 setlocal foldexpr=QTFoldLevel(v:lnum)
@@ -57,12 +53,6 @@ setlocal foldtext=QTFoldText()
 
 " Script settings
 let s:one_indent = repeat(" ", &tabstop)
-
-if has('gui_win32')
-    let s:path_sep = '\'
-else
-    let s:path_sep = '/'
-endif
 
 " User-configurable options and their defaults {{{1
 if !exists("g:quicktask_no_mappings")
@@ -114,7 +104,7 @@ endfunction
 "
 " With the cursor on a task line, return the indent level of that task.
 function! s:GetTaskIndent()
-    if getline('.') =~ '^\s*- '
+    if getline('.') =~ '^\s*⯆ '
         " What is the indentation level of this task?
         let matches = matchlist(getline('.'), '\v^(\s{-})[^ ]')
         let indent = len(matches[1])
@@ -137,7 +127,7 @@ function! s:FindTaskStart(move)
         let flags .= 'n'
     endif
 
-    return search('^\s*- ', flags)
+    return search('^\s*⯆ ', flags)
 endfunction
 
 " ============================================================================
@@ -174,72 +164,6 @@ function! s:FindTaskEnd(move)
 endfunction
 
 " ============================================================================
-" FindTaskParent(): Find the start line of the current task's parent. {{{1
-"
-" Get the indent level of the current task and, if non-zero, find the first
-" line of the task that encloses this one (its 'parent').
-function! s:FindTaskParent()
-    call s:FindTaskStart(1)
-    let indent = s:GetTaskIndent()
-
-    if indent == 0
-        return 0
-    else
-        let parent_indent = indent - &tabstop
-        let parent_line = search('^\s\{'.parent_indent.'}[^ ]', 'bnW')
-        return parent_line
-    endif
-endfunction!
-
-" ============================================================================
-" FindNextSibling(): Find the sibling task below the current task. {{{1
-"
-" Get the indent level of the current task and find a task below this one that
-" has the same indent. If the current task is a child, only find siblings
-" within the same parent.
-function! s:FindNextSibling()
-    call s:FindTaskStart(1)
-    let indent = s:GetTaskIndent()
-
-    " If we might be a child, get the location of the next line 'below' our
-    " indent level, such as our parent's next sibling. This is our 'boundary
-    " line', beyond which we cannot search for siblings.
-    if indent > 0
-        let parent_indent = indent - &tabstop
-        let boundary_line = search('^\s\{0,'.parent_indent.'}[^ ]', 'nW')
-    else
-        " If we are at the lowest indent level, our boundary is the end of the
-        " file.
-        let boundary_line = line('$')
-    endif
-
-    return search('^\s\{'.indent.'}-', 'nW', boundary_line-1)
-endfunction
-
-" ============================================================================
-" FindPrevSibling(): Find the sibling task above the current task. {{{1
-"
-" Get the indent level of the current task and find a task above this one that
-" has the same indent. If the current task is a child, only find siblings
-" within the same parent.
-function! s:FindPrevSibling()
-    call s:FindTaskStart(1)
-    let indent = s:GetTaskIndent()
-
-    " If we are a child of something, find the boundary at which we must stop
-    " searching. For backwards searching, this is our parent task's line.
-    if indent > 0
-        let boundary_line = s:FindTaskParent()
-    else
-        " If we are at the lowest indent level, our boundary is the beginning
-        " of the file.
-        let boundary_line = 1
-    endif
-
-    return search('^\s\{'.indent.'}-', 'bnW', boundary_line)
-endfunction
-
-" ============================================================================
 " SelectTask(): Create a linewise visual selection of the current task. {{{1
 function! s:SelectTask()
     call s:FindTaskStart(1)
@@ -249,15 +173,12 @@ function! s:SelectTask()
 endfunction
 
 " ============================================================================
-" GetTaskText(): Get the first line of text of a task. {{{1
-function! s:GetTaskText()
-    let task_line_num = s:FindTaskStart(0)
-    if task_line_num
-        return getline(task_line_num)
-    endif
-
-    " Fallback
-    return ''
+" NewDay(): Add a task to the file. {{{1
+"
+" Add a 'skeleton' task to the file after the line given and at the indent
+" level specified.
+function! s:NewDay()
+    call append(line(0),"================================== ".s:GetDatestamp('today')." ==================================")
 endfunction
 
 " ============================================================================
@@ -273,7 +194,7 @@ function! s:AddTask(after, indent, move_cursor)
     endif
 
     " Compose the two lines to insert
-    let new_task_lines = [ physical_indent . "- READY " ]
+    let new_task_lines = [ physical_indent . "⯆ READY " ]
 
     if g:quicktask_task_insert_added
         let date_format = g:quicktask_date_format
@@ -298,7 +219,7 @@ endfunction
 " Add a task above the current task, at the current task's level.
 function! s:AddTaskAbove()
     " We don't support inserting a task above a section.
-  if getline('.') =~ ':$' && getline('.') !~ '^\s*-'
+  if getline('.') =~ '=\{34\}$'
         call s:EchoWarning("Inserting a task above a section isn't supported.")
         return
     endif
@@ -318,7 +239,7 @@ endfunction
 " Add a task below the current task, at the current task's level.
 function! s:AddTaskBelow()
     " We insert directly below sections.
-    if getline('.') =~ ':$' && getline('.') !~ '^\s*-'
+    if getline('.') =~ '=\{34\}$'
         let indent = s:GetAnyIndent() + &tabstop
         let task_line_num = line('.')
     else
@@ -382,7 +303,7 @@ function! s:AddNoteToTask()
         " If we are still at the correct indent level
         if match(getline(current_line), '\v^\s{'.indent.'}') > -1
             " If this line is a sub-task, we have reached our location.
-            if match(getline(current_line), '\v^\s*-') > -1
+            if match(getline(current_line), '\v^\s*⯆') > -1
                 let current_line = current_line - 1
                 break
             " If this line is an Added/Start line, we have reached our
@@ -466,7 +387,7 @@ function! s:UpdateStatus(status)
     " If we are not on a task line right now, we need to search up for one.
     call s:FindTaskStart(1)
 
-    call setline(line('.'), substitute(getline('.'), '\(READY\|WIP\|HOLD\|DONE\)', a:status, ""))
+    call setline(line('.'), substitute(getline('.'), '\(READY\|WIP\|HOLD\|WAIT\|DONE\)', a:status, ""))
 
     if a:status == "DONE"
       call s:AddTag("Done ".s:GetDatestamp('today')." ".s:GetTimestamp(), 0)
@@ -542,7 +463,7 @@ endfunction
 " in an indented fashion matching the tasks themselves.
 function! QTFoldText()
     let lines = v:foldend - v:foldstart + 1
-    return getline(v:foldstart).' ('.lines.')'
+    return substitute(getline(v:foldstart), "⯆", "⯈", "").' ('.lines.')'
 endfunction
 
 " ============================================================================
@@ -557,17 +478,6 @@ function! CloseFoldIfOpen()
 endfunction
 
 " ============================================================================
-" OpenFoldIfClosed(): Quietly open a fold only if it is closed. {{{1
-"
-" This is used when automatically opening and closing folded tasks based on
-" their status.
-function! OpenFoldIfClosed()
-    if foldclosed(line('.')) > -1
-        execute "silent! normal ".foldlevel(line('.'))."zo"
-    endif
-endfunction
-
-" ============================================================================
 " HideTasks(): Fold all completed tasks. {{{1
 "
 " The net result is that only incomplete (active) tasks remain open and
@@ -575,12 +485,13 @@ endfunction
 function! s:HideTasks(status)
     let current_line = line('.')
     execute "normal! zR"
-    execute "g/- ".a:status."/call CloseFoldIfOpen()"
+    execute "g/⯆ ".a:status."/call CloseFoldIfOpen()"
     call cursor(current_line, 0)
 endfunction
 
 " ============================================================================
 " Private mappings {{{1
+nmap <silent> <Plug>NewDay                   :call <SID>NewDay()<CR>
 nmap <silent> <Plug>SelectTask               :call <SID>SelectTask()<CR>
 nmap <silent> <Plug>AddTicketTag             :call <SID>AddTag("Ticket", 1)<CR>
 nmap <silent> <Plug>AddDeadlineTag           :call <SID>AddTag("DEADLINE", 1)<CR>
@@ -591,7 +502,7 @@ nmap <silent> <Plug>UpdateStatusWait         :call <SID>UpdateStatus("WAIT")<CR>
 nmap <silent> <Plug>UpdateStatusDone         :call <SID>UpdateStatus("DONE")<CR>
 nmap <silent> <Plug>ShowActiveTasksOnly      :call <SID>HideTasks("DONE")<CR>
 nmap <silent> <Plug>ShowReadyTasksOnly       :call <SID>HideTasks("\\(WIP\\\|HOLD\\\|WAIT\\\|DONE\\)")<CR>
-nmap <silent> <Plug>ShowWipTasksOnly         :call <SID>HideTasks("\\(READY\\\|HOLD\\\|WAIT\\\|DONE\\)")<CR>
+nmap <silent> <Plug>ShowWIPTasksOnly         :call <SID>HideTasks("\\(READY\\\|HOLD\\\|WAIT\\\|DONE\\)")<CR>
 nmap <silent> <Plug>ShowHoldTasksOnly        :call <SID>HideTasks("\\(READY\\\|WIP\\\|WAIT\\\|DONE\\)")<CR>
 nmap <silent> <Plug>ShowWaitTasksOnly        :call <SID>HideTasks("\\(READY\\\|WIP\\\|HOLD\\\|DONE\\)")<CR>
 nmap <silent> <Plug>AddTaskAbove             :call <SID>AddTaskAbove()<CR>
@@ -601,6 +512,7 @@ nmap <silent> <Plug>AddChildTask             :call <SID>AddChildTask()<CR>
 
 " Public mappings {{{1
 if ! g:quicktask_no_mappings && ! exists('b:quicktask_did_mappings')
+    nmap <unique><buffer> <Leader>td  <Plug>NewDay
     nmap <unique><buffer> <Leader>tv  <Plug>SelectTask
     nmap <unique><buffer> <Leader>tat <Plug>AddTicketTag
     nmap <unique><buffer> <Leader>tad <Plug>AddDeadlineTag
