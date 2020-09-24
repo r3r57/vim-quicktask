@@ -164,6 +164,23 @@ function! s:FindTaskEnd(move)
 endfunction
 
 " ============================================================================
+" FindTaskParent(): Find the start line of the current task's parent. {{{1
+"
+" Get the indent level of the current task and, if non-zero, find the first
+" line of the task that encloses this one (its 'parent').
+function! s:FindTaskParent()
+    call s:FindTaskStart(1)
+    let indent = s:GetTaskIndent()
+
+    if indent == 0
+        return 0
+    else
+        let parent_indent = indent - &tabstop
+        return search('^\s\{'.parent_indent.'}[⯆]', 'bnW')
+    endif
+endfunction!
+
+" ============================================================================
 " SelectTask(): Create a linewise visual selection of the current task. {{{1
 function! s:SelectTask()
     call s:FindTaskStart(1)
@@ -394,6 +411,15 @@ function! s:UpdateStatus(status)
       :normal! zc
     else
       :normal! zo
+      if a:status =~# "\\(WIP\\|HOLD\\|WAIT\\)"
+        let parent_line = s:FindTaskParent()
+        if parent_line != 0
+          let cursor_line = line('.')
+          call cursor(parent_line, 0)
+          call s:UpdateStatus("WIP")
+          call cursor(cursor_line, 0)
+        endif
+      endif
     endif
 endfunction
 
