@@ -176,9 +176,47 @@ function! s:FindTaskParent()
         return 0
     else
         let parent_indent = indent - &tabstop
-        return search('^\s\{'.parent_indent.'}[⯆]', 'bnW')
+        return search('^\s\{'.parent_indent.'}⯆', 'bnW')
     endif
 endfunction!
+
+" ============================================================================
+" FindChild(): Find children task below the current task. {{{1
+"
+" Get the indent level of the current task and find a task below this one that
+" has the same indent. If the current task is a child, only find siblings
+" within the same parent.
+function! s:FindChild(child_indent, offset_line, boundary_line)
+  call cursor(a:offset_line, 0)
+  return search('^\s\{'.a:child_indent.'}⯆', 'nW', a:boundary_line)
+endfunction
+
+" ============================================================================
+" CheckChildrenDone(): Find children task below the current task. {{{1
+"
+" Get the indent level of the current task and find a task below this one that
+" has the same indent. If the current task is a child, only find siblings
+" within the same parent.
+function! s:CheckChildrenDone()
+  call s:FindTaskStart(1)
+  let indent = s:GetTaskIndent()
+
+  let child_indent = indent + &tabstop
+
+  let offset_line = line('.')
+  let boundary_line = s:FindTaskEnd(0)
+
+  let child_line = -1
+  while offset_line != child_line
+    let child_line = s:FindChild(child_indent, offset_line, boundary_line)
+    if or(child_line == 0, getline(child_line) =~ '^\s*[]⯆⯈]\sDONE')
+      let offset_line = child_line
+    else
+      return child_line
+    endif
+  endwhile
+  return 0
+endfunction
 
 " ============================================================================
 " SelectTask(): Create a linewise visual selection of the current task. {{{1
@@ -404,12 +442,18 @@ function! s:UpdateStatus(status)
     " If we are not on a task line right now, we need to search up for one.
     call s:FindTaskStart(1)
 
-    call setline(line('.'), substitute(getline('.'), '\(READY\|WIP\|HOLD\|WAIT\|DONE\)', a:status, ""))
-
     if a:status == "DONE"
-      call s:AddTag("Done ".s:GetDatestamp('today')." ".s:GetTimestamp(), 0)
-      :normal! zc
+      let unfinished_children_line = s:CheckChildrenDone()
+      if unfinished_children_line == 0
+        call setline(line('.'), substitute(getline('.'), '\(READY\|WIP\|HOLD\|WAIT\|DONE\)', a:status, ""))
+        call s:AddTag("Done ".s:GetDatestamp('today')." ".s:GetTimestamp(), 0)
+        :normal! zc
+      else
+        call s:EchoWarning("There are unfinished child tasks.")
+        call cursor(unfinished_children_line, 0)
+      endif
     else
+      call setline(line('.'), substitute(getline('.'), '\(READY\|WIP\|HOLD\|WAIT\|DONE\)', a:status, ""))
       :normal! zo
       if a:status =~# "\\(WIP\\|HOLD\\|WAIT\\)"
         let parent_line = s:FindTaskParent()
