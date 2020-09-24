@@ -35,7 +35,7 @@ endif
 let b:undo_ftplugin .= '|setlocal comments< formatoptions< spell< wrap< textwidth< expandtab< shiftwidth< tabstop< iskeyword< foldmethod< foldexpr< fillchars< foldtext<'
 
 " Set all buffer-local settings: {{{1
-setlocal comments=b:#,f:-,f:*
+setlocal comments=b:#,f:⯆,f:*
 setlocal formatoptions=qnwta
 setlocal wrap
 setlocal textwidth=80
