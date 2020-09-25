@@ -199,6 +199,7 @@ endfunction
 " within the same parent.
 function! s:CheckChildrenDone()
   call s:FindTaskStart(1)
+  let parent_line = line('.')
   let indent = s:GetTaskIndent()
 
   let child_indent = indent + &tabstop
@@ -207,14 +208,16 @@ function! s:CheckChildrenDone()
   let boundary_line = s:FindTaskEnd(0)
 
   let child_line = -1
-  while offset_line != child_line
+  while child_line != 0
     let child_line = s:FindChild(child_indent, offset_line, boundary_line)
-    if or(child_line == 0, getline(child_line) =~ '^\s*[]⯆⯈]\sDONE')
+    if or(child_line == 0, getline(child_line) =~ '^\s*⯆\sDONE')
       let offset_line = child_line
     else
+      call cursor(parent_line, 0)
       return child_line
     endif
   endwhile
+  call cursor(parent_line, 0)
   return 0
 endfunction
 
