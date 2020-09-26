@@ -560,6 +560,19 @@ function! s:HideTasks(status)
 endfunction
 
 " ============================================================================
+" HightlightTasks(): Fold all completed tasks. {{{1
+"
+" The net result is that only incomplete (active) tasks remain open and
+" visible in the list.
+function! s:HighlightTasks(status)
+    if a:status != ''
+      execute ':match Highlight /^.*⯆ '.a:status.'.*$/'
+    else
+      execute ':match none'
+    endif
+endfunction
+
+" ============================================================================
 " Private mappings {{{1
 nmap <silent> <Plug>NewDay                   :call <SID>NewDay()<CR>
 nmap <silent> <Plug>SelectTask               :call <SID>SelectTask()<CR>
@@ -570,11 +583,12 @@ nmap <silent> <Plug>UpdateStatusWip          :call <SID>UpdateStatus("WIP")<CR>
 nmap <silent> <Plug>UpdateStatusHold         :call <SID>UpdateStatus("HOLD")<CR>
 nmap <silent> <Plug>UpdateStatusWait         :call <SID>UpdateStatus("WAIT")<CR>
 nmap <silent> <Plug>UpdateStatusDone         :call <SID>UpdateStatus("DONE")<CR>
-nmap <silent> <Plug>ShowActiveTasksOnly      :call <SID>HideTasks("DONE")<CR>
-nmap <silent> <Plug>ShowReadyTasksOnly       :call <SID>HideTasks("\\(WIP\\\|HOLD\\\|WAIT\\\|DONE\\)")<CR>
-nmap <silent> <Plug>ShowWIPTasksOnly         :call <SID>HideTasks("\\(READY\\\|HOLD\\\|WAIT\\\|DONE\\)")<CR>
-nmap <silent> <Plug>ShowHoldTasksOnly        :call <SID>HideTasks("\\(READY\\\|WIP\\\|WAIT\\\|DONE\\)")<CR>
-nmap <silent> <Plug>ShowWaitTasksOnly        :call <SID>HideTasks("\\(READY\\\|WIP\\\|HOLD\\\|DONE\\)")<CR>
+nmap <silent> <Plug>ShowActiveTasks          :call <SID>HideTasks("DONE")<CR>
+nmap <silent> <Plug>HighlightReadyTasks      :call <SID>HighlightTasks("READY")<CR>
+nmap <silent> <Plug>HighlightWIPTasks        :call <SID>HighlightTasks("WIP")<CR>
+nmap <silent> <Plug>HighlightHoldTasks       :call <SID>HighlightTasks("HOLD")<CR>
+nmap <silent> <Plug>HighlightWaitTasks       :call <SID>HighlightTasks("WAIT")<CR>
+nmap <silent> <Plug>HighlightNoTasks         :call <SID>HighlightTasks("")<CR>
 nmap <silent> <Plug>AddTaskAbove             :call <SID>AddTaskAbove()<CR>
 nmap <silent> <Plug>AddTaskBelow             :call <SID>AddTaskBelow()<CR>
 nmap <silent> <Plug>AddNoteToTask            :call <SID>AddNoteToTask()<CR>
@@ -590,11 +604,12 @@ nmap <unique><buffer> <Leader>tuw <Plug>UpdateStatusWip
 nmap <unique><buffer> <Leader>tuh <Plug>UpdateStatusHold
 nmap <unique><buffer> <Leader>tut <Plug>UpdateStatusWait
 nmap <unique><buffer> <Leader>tud <Plug>UpdateStatusDone
-nmap <unique><buffer> <Leader>tsa <Plug>ShowActiveTasksOnly
-nmap <unique><buffer> <Leader>tsr <Plug>ShowReadyTasksOnly
-nmap <unique><buffer> <Leader>tsw <Plug>ShowWIPTasksOnly
-nmap <unique><buffer> <Leader>tsh <Plug>ShowHoldTasksOnly
-nmap <unique><buffer> <Leader>tst <Plug>ShowWaitTasksOnly
+nmap <unique><buffer> <Leader>tsa <Plug>ShowActiveTasks
+nmap <unique><buffer> <Leader>thr <Plug>HighlightReadyTasks
+nmap <unique><buffer> <Leader>thw <Plug>HighlightWIPTasks
+nmap <unique><buffer> <Leader>thh <Plug>HighlightHoldTasks
+nmap <unique><buffer> <Leader>tht <Plug>HighlightWaitTasks
+nmap <unique><buffer> <Leader>thn <Plug>HighlightNoTasks
 nmap <unique><buffer> <Leader>tO  <Plug>AddTaskAbove
 nmap <unique><buffer> <Leader>to  <Plug>AddTaskBelow
 nmap <unique><buffer> <Leader>tan <Plug>AddNoteToTask

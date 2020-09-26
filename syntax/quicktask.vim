@@ -32,6 +32,9 @@ endif
 let s:cpo_save = &cpoptions
 set cpoptions&vim
 
+" Set color for highlighting tasks
+highlight Highlight ctermbg=green guibg=green
+
 syn case ignore
 
 " Sections, tasks, and notes (the building blocks of any list)
