@@ -1,3 +1,4 @@
+scriptencoding utf-8
 " quicktask.vim: A lightweight task management plugin.
 "
 " Author:   Aaron Bieber
@@ -20,11 +21,11 @@
 " Quicktask.  If not, see <http://www.gnu.org/licenses/>.
 
 " Compatibility option reset: {{{1
-let s:cpo_save = &cpo
-set cpo&vim
+let s:cpo_save = &cpoptions
+set cpoptions&vim
 
 " Boilerplate for ftplugins. {{{1
-if exists("b:did_ftplugin")
+if exists('b:did_ftplugin')
   finish
 endif
 let b:did_ftplugin = 1
@@ -52,30 +53,26 @@ setlocal fillchars+=fold:\
 setlocal foldtext=QTFoldText()
 
 " Script settings
-let s:one_indent = repeat(" ", &tabstop)
+let s:one_indent = repeat(' ', &tabstop)
 
 " User-configurable options and their defaults {{{1
-if !exists("g:quicktask_no_mappings")
-    let g:quicktask_no_mappings = 0
-endif
-
-if !exists("g:quicktask_autosave")
+if !exists('g:quicktask_autosave')
     let g:quicktask_autosave = 0
 endif
 
-if !exists("g:quicktask_task_insert_added")
+if !exists('g:quicktask_task_insert_added')
     let g:quicktask_task_insert_added = 1
 endif
 
-if !exists("g:quicktask_task_added_include_time")
+if !exists('g:quicktask_task_added_include_time')
     let g:quicktask_task_added_include_time = 0
 endif
 
-if !exists("g:quicktask_date_format")
-    let g:quicktask_date_format = "%d.%m.%Y"
+if !exists('g:quicktask_date_format')
+    let g:quicktask_date_format = '%d.%m.%Y'
 endif
 
-if !exists("g:quicktask_fold_done_on_startup")
+if !exists('g:quicktask_fold_done_on_startup')
     let g:quicktask_fold_done_on_startup = 1
 endif
 " ============================================================================
@@ -104,7 +101,7 @@ endfunction
 "
 " With the cursor on a task line, return the indent level of that task.
 function! s:GetTaskIndent()
-    if getline('.') =~ '^\s*⯆ '
+    if getline('.') =~# '^\s*⯆ '
         " What is the indentation level of this task?
         let matches = matchlist(getline('.'), '\v^(\s{-})[^ ]')
         let indent = len(matches[1])
@@ -178,7 +175,7 @@ function! s:FindTaskParent()
         let parent_indent = indent - &tabstop
         return search('^\s\{'.parent_indent.'}⯆', 'bnW')
     endif
-endfunction!
+endfunction
 
 " ============================================================================
 " FindChild(): Find children task below the current task. {{{1
@@ -210,7 +207,7 @@ function! s:CheckChildrenDone()
   let child_line = -1
   while child_line != 0
     let child_line = s:FindChild(child_indent, offset_line, boundary_line)
-    if or(child_line == 0, getline(child_line) =~ '^\s*⯆\sDONE')
+    if or(child_line == 0, getline(child_line) =~# '^\s*⯆\sDONE')
       let offset_line = child_line
     else
       call cursor(parent_line, 0)
@@ -227,7 +224,7 @@ function! s:SelectTask()
     call s:FindTaskStart(1)
     let end_line = s:FindTaskEnd(0)
 
-    execute "normal V".end_line."G"
+    execute 'normal V'.end_line.'G'
 endfunction
 
 " ============================================================================
@@ -236,7 +233,7 @@ endfunction
 " Add a 'skeleton' task to the file after the line given and at the indent
 " level specified.
 function! s:NewDay()
-    call append(line(0),"================================== ".s:GetDatestamp('today')." ==================================")
+    call append(line(0),'================================== '.s:GetDatestamp('today').' ==================================')
 endfunction
 
 " ============================================================================
@@ -246,20 +243,20 @@ endfunction
 " level specified.
 function! s:AddTask(after, indent, move_cursor)
     if a:indent > 0
-        let physical_indent = repeat(" ", a:indent)
+        let physical_indent = repeat(' ', a:indent)
     else
-        let physical_indent = ""
+        let physical_indent = ''
     endif
 
     " Compose the two lines to insert
-    let new_task_lines = [ physical_indent . "⯆ READY " ]
+    let new_task_lines = [ physical_indent . '⯆ READY ' ]
 
     if g:quicktask_task_insert_added
         let date_format = g:quicktask_date_format
         if g:quicktask_task_added_include_time
-            let date_format = g:quicktask_date_format." %H:%M"
+            let date_format = g:quicktask_date_format.' %H:%M'
         endif
-        let date_line = physical_indent . s:one_indent . "@ Added " . strftime(date_format)
+        let date_line = physical_indent . s:one_indent . '@ Added ' . strftime(date_format)
         let new_task_lines += [ date_line ]
     endif
 
@@ -277,7 +274,7 @@ endfunction
 " Add a task above the current task, at the current task's level.
 function! s:AddTaskAbove()
     " We don't support inserting a task above a section.
-  if getline('.') =~ '=\{34\}$'
+  if getline('.') =~# '=\{34\}$'
         call s:EchoWarning("Inserting a task above a section isn't supported.")
         return
     endif
@@ -297,7 +294,7 @@ endfunction
 " Add a task below the current task, at the current task's level.
 function! s:AddTaskBelow()
     " We insert directly below sections.
-    if getline('.') =~ '=\{34\}$'
+    if getline('.') =~# '=\{34\}$'
         let indent = s:GetAnyIndent() + &tabstop
         let task_line_num = line('.')
     else
@@ -351,7 +348,7 @@ function! s:AddNoteToTask()
     " The indent we want to find is the tasks's indent plus one.
     let indent = indent + &tabstop
 
-    let physical_indent = repeat(" ", indent)
+    let physical_indent = repeat(' ', indent)
     let note_line = physical_indent . '* '
 
     " Search downward, looking for existing note or beginning of Added note
@@ -425,14 +422,14 @@ function! s:AddTag(tag, move_cursor)
         let current_line = current_line + 1
     endwhile
 
-    let physical_indent = repeat(" ", indent)
+    let physical_indent = repeat(' ', indent)
 
     if a:move_cursor
-      call append(start, physical_indent."@ ".a:tag." ")
+      call append(start, physical_indent.'@ '.a:tag.' ')
       call cursor(start+1, len(getline(start+1)))
       startinsert!
     else
-      call append(start, physical_indent."@ ".a:tag)
+      call append(start, physical_indent.'@ '.a:tag)
     endif
 endfunction
 
@@ -445,25 +442,25 @@ function! s:UpdateStatus(status)
     " If we are not on a task line right now, we need to search up for one.
     call s:FindTaskStart(1)
 
-    if a:status == "DONE"
+    if a:status ==# 'DONE'
       let unfinished_children_line = s:CheckChildrenDone()
       if unfinished_children_line == 0
-        call setline(line('.'), substitute(getline('.'), '\(READY\|WIP\|HOLD\|WAIT\|DONE\)', a:status, ""))
-        call s:AddTag("Done ".s:GetDatestamp('today')." ".s:GetTimestamp(), 0)
+        call setline(line('.'), substitute(getline('.'), '\(READY\|WIP\|HOLD\|WAIT\|DONE\)', a:status, ''))
+        call s:AddTag('Done '.s:GetDatestamp('today').' '.s:GetTimestamp(), 0)
         :normal! zc
       else
-        call s:EchoWarning("There are unfinished child tasks.")
+        call s:EchoWarning('There are unfinished child tasks.')
         call cursor(unfinished_children_line, 0)
       endif
     else
-      call setline(line('.'), substitute(getline('.'), '\(READY\|WIP\|HOLD\|WAIT\|DONE\)', a:status, ""))
+      call setline(line('.'), substitute(getline('.'), '\(READY\|WIP\|HOLD\|WAIT\|DONE\)', a:status, ''))
       :normal! zo
       if a:status =~# "\\(WIP\\|HOLD\\|WAIT\\)"
         let parent_line = s:FindTaskParent()
         if parent_line != 0
           let cursor_line = line('.')
           call cursor(parent_line, 0)
-          call s:UpdateStatus("WIP")
+          call s:UpdateStatus('WIP')
           call cursor(cursor_line, 0)
         endif
       endif
@@ -476,7 +473,7 @@ endfunction
 " This will be called by an autocommand to save the current task list file
 " when focus is lost.
 function! s:SaveOnFocusLost()
-    if &filetype == "quicktask"
+    if &filetype ==# 'quicktask'
         :silent! w
     endif
 endfunction
@@ -489,11 +486,11 @@ endfunction
 " locate current tasks. GetDatestamp() returns a Quicktask-formatted
 " datestamp for the requested time relative to 'now.'
 function! s:GetDatestamp(coordinate)
-    if a:coordinate == 'tomorrow'
+    if a:coordinate ==# 'tomorrow'
         return strftime(g:quicktask_date_format, localtime()+86400)
-    elseif a:coordinate == 'yesterday'
+    elseif a:coordinate ==# 'yesterday'
         return strftime(g:quicktask_date_format, localtime()-86400)
-    elseif a:coordinate == 'nextweek'
+    elseif a:coordinate ==# 'nextweek'
         return strftime(g:quicktask_date_format, localtime()+604800)
     endif
     return strftime(g:quicktask_date_format)
@@ -536,7 +533,7 @@ endfunction
 " in an indented fashion matching the tasks themselves.
 function! QTFoldText()
     let lines = v:foldend - v:foldstart + 1
-    return substitute(getline(v:foldstart), "⯆", "⯈", "").' ('.lines.')'
+    return substitute(getline(v:foldstart), '⯆', '⯈', '').' ('.lines.')'
 endfunction
 
 " ============================================================================
@@ -557,8 +554,8 @@ endfunction
 " visible in the list.
 function! s:HideTasks(status)
     let current_line = line('.')
-    execute "normal! zR"
-    execute "g/⯆ ".a:status."/call CloseFoldIfOpen()"
+    execute 'normal! zR'
+    execute 'g/⯆ '.a:status.'/call CloseFoldIfOpen()'
     call cursor(current_line, 0)
 endfunction
 
@@ -584,28 +581,25 @@ nmap <silent> <Plug>AddNoteToTask            :call <SID>AddNoteToTask()<CR>
 nmap <silent> <Plug>AddChildTask             :call <SID>AddChildTask()<CR>
 
 " Public mappings {{{1
-if ! g:quicktask_no_mappings && ! exists('b:quicktask_did_mappings')
-    nmap <unique><buffer> <Leader>td  <Plug>NewDay
-    nmap <unique><buffer> <Leader>tv  <Plug>SelectTask
-    nmap <unique><buffer> <Leader>tat <Plug>AddTicketTag
-    nmap <unique><buffer> <Leader>tad <Plug>AddDeadlineTag
-    nmap <unique><buffer> <Leader>tur <Plug>UpdateStatusReady
-    nmap <unique><buffer> <Leader>tuw <Plug>UpdateStatusWip
-    nmap <unique><buffer> <Leader>tuh <Plug>UpdateStatusHold
-    nmap <unique><buffer> <Leader>tut <Plug>UpdateStatusWait
-    nmap <unique><buffer> <Leader>tud <Plug>UpdateStatusDone
-    nmap <unique><buffer> <Leader>tsa <Plug>ShowActiveTasksOnly
-    nmap <unique><buffer> <Leader>tsr <Plug>ShowReadyTasksOnly
-    nmap <unique><buffer> <Leader>tsw <Plug>ShowWIPTasksOnly
-    nmap <unique><buffer> <Leader>tsh <Plug>ShowHoldTasksOnly
-    nmap <unique><buffer> <Leader>tst <Plug>ShowWaitTasksOnly
-    nmap <unique><buffer> <Leader>tO  <Plug>AddTaskAbove
-    nmap <unique><buffer> <Leader>to  <Plug>AddTaskBelow
-    nmap <unique><buffer> <Leader>tan <Plug>AddNoteToTask
-    nmap <unique><buffer> <Leader>tac <Plug>AddChildTask
-    command -buffer -nargs=0 QTAddTaskBelow call <SID>AddTaskBelow()
-    let b:quicktask_did_mappings = 1
-endif
+nmap <unique><buffer> <Leader>td  <Plug>NewDay
+nmap <unique><buffer> <Leader>tv  <Plug>SelectTask
+nmap <unique><buffer> <Leader>tat <Plug>AddTicketTag
+nmap <unique><buffer> <Leader>tad <Plug>AddDeadlineTag
+nmap <unique><buffer> <Leader>tur <Plug>UpdateStatusReady
+nmap <unique><buffer> <Leader>tuw <Plug>UpdateStatusWip
+nmap <unique><buffer> <Leader>tuh <Plug>UpdateStatusHold
+nmap <unique><buffer> <Leader>tut <Plug>UpdateStatusWait
+nmap <unique><buffer> <Leader>tud <Plug>UpdateStatusDone
+nmap <unique><buffer> <Leader>tsa <Plug>ShowActiveTasksOnly
+nmap <unique><buffer> <Leader>tsr <Plug>ShowReadyTasksOnly
+nmap <unique><buffer> <Leader>tsw <Plug>ShowWIPTasksOnly
+nmap <unique><buffer> <Leader>tsh <Plug>ShowHoldTasksOnly
+nmap <unique><buffer> <Leader>tst <Plug>ShowWaitTasksOnly
+nmap <unique><buffer> <Leader>tO  <Plug>AddTaskAbove
+nmap <unique><buffer> <Leader>to  <Plug>AddTaskBelow
+nmap <unique><buffer> <Leader>tan <Plug>AddNoteToTask
+nmap <unique><buffer> <Leader>tac <Plug>AddChildTask
+command -buffer -nargs=0 QTAddTaskBelow call <SID>AddTaskBelow()
 
 " ============================================================================
 " Autocommands {{{1
@@ -632,5 +626,5 @@ iabbrev <expr> :nextweek: <SID>GetDatestamp('nextweek')
 iabbrev <expr> :now: <SID>GetTimestamp()
 
 " Compatibility option reset: {{{1
-let &cpo = s:cpo_save
+let &cpoptions = s:cpo_save
 unlet s:cpo_save

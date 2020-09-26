@@ -28,19 +28,19 @@ let s:version = '1.4'
 " Create a new Quicktask file in a new buffer.
 function! QTInit()
     if len(expand('%:p')) || &modified || !&modifiable
-        execute "new"
+        execute 'new'
     endif
     setlocal filetype=quicktask
     let new_task_list = [   '# Quicktask v'.s:version,
                             \'',
                             \'CURRENT TASKS:',
                             \'  - My first task.',
-                            \'    @ Added ['.strftime("%a %Y-%m-%d").']',
+                            \'    @ Added ['.strftime('%a %Y-%m-%d').']',
                             \'COMPLETED TASKS:',
                             \'',
                             \'# vim:ft=quicktask']
     call append(0, new_task_list)
-    execute "normal GddggzR"
+    execute 'normal GddggzR'
 endfunction
 
 " ============================================================================

@@ -1,3 +1,4 @@
+scriptencoding utf-8
 " quicktask.vim: A lightweight task management plugin.
 "
 " Author:   Aaron Bieber
@@ -23,13 +24,13 @@
 " You should have received a copy of the GNU General Public License along with
 " Quicktask.  If not, see <http://www.gnu.org/licenses/>.
 
-if exists("b:current_syntax")
+if exists('b:current_syntax')
   finish
 endif
 
 " Save compatibility and force vim compatibility
-let s:cpo_save = &cpo
-set cpo&vim
+let s:cpo_save = &cpoptions
+set cpoptions&vim
 
 syn case ignore
 
@@ -60,7 +61,7 @@ syn keyword quicktaskTaskStatusWIP            contained WIP
 syn keyword quicktaskTaskStatusDone           contained DONE
 syn keyword quicktaskTaskStatusWait           contained HOLD WAIT
 
-syn keyword quicktaskTaskTagDeadline       contained DEADLINE
+syn keyword quicktaskTaskTagDeadline          contained DEADLINE
 
 " The remainder of items are case-insensitive.
 syn case ignore
@@ -69,7 +70,7 @@ hi Folded  ctermbg=NONE guibg=NONE
 hi Folded  ctermfg=grey guifg=grey
 
 " Highlight links
-hi def link quicktaskSection        Title
+hi def link quicktaskSection            Title
 
 hi def link quicktaskTask               SpecialComment
 hi def link quicktaskTaskStatusReady    Boolean
@@ -83,7 +84,7 @@ hi def link quicktaskTaskTagDeadline    Error
 hi def link quicktaskTaskNote           String
 hi def link quicktaskTaskNoteCont       String
 
-let b:current_syntax = "quicktask"
+let b:current_syntax = 'quicktask'
 
-let &cpo = s:cpo_save
+let &cpoptions = s:cpo_save
 unlet s:cpo_save
