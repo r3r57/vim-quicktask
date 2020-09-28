@@ -595,6 +595,7 @@ nmap <silent> <Plug>AddNoteToTask            :call <SID>AddNoteToTask()<CR>
 nmap <silent> <Plug>AddChildTask             :call <SID>AddChildTask()<CR>
 
 " Public mappings {{{1
+if ! exists('b:quicktask_did_mappings')
 nmap <unique><buffer> <Leader>td  <Plug>NewDay
 nmap <unique><buffer> <Leader>tv  <Plug>SelectTask
 nmap <unique><buffer> <Leader>tat <Plug>AddTicketTag
@@ -615,6 +616,8 @@ nmap <unique><buffer> <Leader>to  <Plug>AddTaskBelow
 nmap <unique><buffer> <Leader>tan <Plug>AddNoteToTask
 nmap <unique><buffer> <Leader>tac <Plug>AddChildTask
 command -buffer -nargs=0 QTAddTaskBelow call <SID>AddTaskBelow()
+    let b:quicktask_did_mappings = 1
+endif
 
 " ============================================================================
 " Autocommands {{{1
