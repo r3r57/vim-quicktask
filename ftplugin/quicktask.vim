@@ -75,6 +75,7 @@ endif
 if !exists('g:quicktask_fold_done_on_startup')
     let g:quicktask_fold_done_on_startup = 1
 endif
+
 " ============================================================================
 " EchoWarning(): Echo a warning message, in color! {{{1
 function! s:EchoWarning(message)
@@ -207,7 +208,7 @@ function! s:CheckChildrenDone()
   let child_line = -1
   while child_line != 0
     let child_line = s:FindChild(child_indent, offset_line, boundary_line)
-    if or(child_line == 0, getline(child_line) =~# '^\s*⯆\sDONE')
+    if or(child_line == 0, getline(child_line) =~# '^\s*⯆\s✓ DONE')
       let offset_line = child_line
     else
       call cursor(parent_line, 0)
@@ -442,25 +443,29 @@ function! s:UpdateStatus(status)
     " If we are not on a task line right now, we need to search up for one.
     call s:FindTaskStart(1)
 
-    if a:status ==# 'DONE'
+    if a:status ==# '✓ DONE'
       let unfinished_children_line = s:CheckChildrenDone()
       if unfinished_children_line == 0
-        call setline(line('.'), substitute(getline('.'), '\(READY\|WIP\|HOLD\|WAIT\|DONE\)', a:status, ''))
+        call setline(line('.'), substitute(getline('.'), '\(READY\|⚙ WIP\|⏸ HOLD\|⧖ WAIT\|✓ DONE\|✕ ABANDONED\)', a:status, ''))
         call s:AddTag('Done '.s:GetDatestamp('today').' '.s:GetTimestamp(), 0)
         :normal! zc
       else
         call s:EchoWarning('There are unfinished child tasks.')
         call cursor(unfinished_children_line, 0)
       endif
+    elseif a:status ==# '✕ ABANDONED'
+      call setline(line('.'), substitute(getline('.'), '\(READY\|⚙ WIP\|⏸ HOLD\|⧖ WAIT\|✓ DONE\|✕ ABANDONED\)', a:status, ''))
+      call s:AddTag('Abandoned '.s:GetDatestamp('today').' '.s:GetTimestamp(), 0)
+      :normal! zc
     else
-      call setline(line('.'), substitute(getline('.'), '\(READY\|WIP\|HOLD\|WAIT\|DONE\)', a:status, ''))
+      call setline(line('.'), substitute(getline('.'), '\(READY\|⚙ WIP\|⏸ HOLD\|⧖ WAIT\|✓ DONE\|✕ ABANDONED\)', a:status, ''))
       :normal! zo
-      if a:status =~# "\\(WIP\\|HOLD\\|WAIT\\)"
+      if a:status =~# "\\(⚙ WIP\\|⏸ HOLD\\|⧖ WAIT\\)"
         let parent_line = s:FindTaskParent()
         if parent_line != 0
           let cursor_line = line('.')
           call cursor(parent_line, 0)
-          call s:UpdateStatus('WIP')
+          call s:UpdateStatus('⚙ WIP')
           call cursor(cursor_line, 0)
         endif
       endif
@@ -576,19 +581,20 @@ endfunction
 " Private mappings {{{1
 nmap <silent> <Plug>NewDay                   :call <SID>NewDay()<CR>
 nmap <silent> <Plug>SelectTask               :call <SID>SelectTask()<CR>
-nmap <silent> <Plug>AddTicketTag             :call <SID>AddTag("Ticket", 1)<CR>
-nmap <silent> <Plug>AddDeadlineTag           :call <SID>AddTag("DEADLINE", 1)<CR>
-nmap <silent> <Plug>UpdateStatusReady        :call <SID>UpdateStatus("READY")<CR>
-nmap <silent> <Plug>UpdateStatusWip          :call <SID>UpdateStatus("WIP")<CR>
-nmap <silent> <Plug>UpdateStatusHold         :call <SID>UpdateStatus("HOLD")<CR>
-nmap <silent> <Plug>UpdateStatusWait         :call <SID>UpdateStatus("WAIT")<CR>
-nmap <silent> <Plug>UpdateStatusDone         :call <SID>UpdateStatus("DONE")<CR>
-nmap <silent> <Plug>ShowActiveTasks          :call <SID>HideTasks("DONE")<CR>
-nmap <silent> <Plug>HighlightReadyTasks      :call <SID>HighlightTasks("READY")<CR>
-nmap <silent> <Plug>HighlightWIPTasks        :call <SID>HighlightTasks("WIP")<CR>
-nmap <silent> <Plug>HighlightHoldTasks       :call <SID>HighlightTasks("HOLD")<CR>
-nmap <silent> <Plug>HighlightWaitTasks       :call <SID>HighlightTasks("WAIT")<CR>
-nmap <silent> <Plug>HighlightNoTasks         :call <SID>HighlightTasks("")<CR>
+nmap <silent> <Plug>AddTicketTag             :call <SID>AddTag('Ticket', 1)<CR>
+nmap <silent> <Plug>AddDeadlineTag           :call <SID>AddTag('DEADLINE', 1)<CR>
+nmap <silent> <Plug>UpdateStatusReady        :call <SID>UpdateStatus('READY')<CR>
+nmap <silent> <Plug>UpdateStatusWip          :call <SID>UpdateStatus('⚙ WIP')<CR>
+nmap <silent> <Plug>UpdateStatusHold         :call <SID>UpdateStatus('⏸ HOLD')<CR>
+nmap <silent> <Plug>UpdateStatusWait         :call <SID>UpdateStatus('⧖ WAIT')<CR>
+nmap <silent> <Plug>UpdateStatusDone         :call <SID>UpdateStatus('✓ DONE')<CR>
+nmap <silent> <Plug>UpdateStatusAbandoned    :call <SID>UpdateStatus('✕ ABANDONED')<CR>
+nmap <silent> <Plug>ShowActiveTasks          :call <SID>HideTasks('\(✓ DONE\\|✕ ABANDONED\)')<CR>
+nmap <silent> <Plug>HighlightReadyTasks      :call <SID>HighlightTasks('READY')<CR>
+nmap <silent> <Plug>HighlightWIPTasks        :call <SID>HighlightTasks('⚙ WIP')<CR>
+nmap <silent> <Plug>HighlightHoldTasks       :call <SID>HighlightTasks('⏸ HOLD')<CR>
+nmap <silent> <Plug>HighlightWaitTasks       :call <SID>HighlightTasks('⧖ WAIT')<CR>
+nmap <silent> <Plug>HighlightNoTasks         :call <SID>HighlightTasks('')<CR>
 nmap <silent> <Plug>AddTaskAbove             :call <SID>AddTaskAbove()<CR>
 nmap <silent> <Plug>AddTaskBelow             :call <SID>AddTaskBelow()<CR>
 nmap <silent> <Plug>AddNoteToTask            :call <SID>AddNoteToTask()<CR>
@@ -596,26 +602,27 @@ nmap <silent> <Plug>AddChildTask             :call <SID>AddChildTask()<CR>
 
 " Public mappings {{{1
 if ! exists('b:quicktask_did_mappings')
-nmap <unique><buffer> <Leader>td  <Plug>NewDay
-nmap <unique><buffer> <Leader>tv  <Plug>SelectTask
-nmap <unique><buffer> <Leader>tat <Plug>AddTicketTag
-nmap <unique><buffer> <Leader>tad <Plug>AddDeadlineTag
-nmap <unique><buffer> <Leader>tur <Plug>UpdateStatusReady
-nmap <unique><buffer> <Leader>tuw <Plug>UpdateStatusWip
-nmap <unique><buffer> <Leader>tuh <Plug>UpdateStatusHold
-nmap <unique><buffer> <Leader>tut <Plug>UpdateStatusWait
-nmap <unique><buffer> <Leader>tud <Plug>UpdateStatusDone
-nmap <unique><buffer> <Leader>tsa <Plug>ShowActiveTasks
-nmap <unique><buffer> <Leader>thr <Plug>HighlightReadyTasks
-nmap <unique><buffer> <Leader>thw <Plug>HighlightWIPTasks
-nmap <unique><buffer> <Leader>thh <Plug>HighlightHoldTasks
-nmap <unique><buffer> <Leader>tht <Plug>HighlightWaitTasks
-nmap <unique><buffer> <Leader>thn <Plug>HighlightNoTasks
-nmap <unique><buffer> <Leader>tO  <Plug>AddTaskAbove
-nmap <unique><buffer> <Leader>to  <Plug>AddTaskBelow
-nmap <unique><buffer> <Leader>tan <Plug>AddNoteToTask
-nmap <unique><buffer> <Leader>tac <Plug>AddChildTask
-command -buffer -nargs=0 QTAddTaskBelow call <SID>AddTaskBelow()
+    nmap <unique><buffer> <Leader>td  <Plug>NewDay
+    nmap <unique><buffer> <Leader>tv  <Plug>SelectTask
+    nmap <unique><buffer> <Leader>tat <Plug>AddTicketTag
+    nmap <unique><buffer> <Leader>tad <Plug>AddDeadlineTag
+    nmap <unique><buffer> <Leader>tur <Plug>UpdateStatusReady
+    nmap <unique><buffer> <Leader>tuw <Plug>UpdateStatusWip
+    nmap <unique><buffer> <Leader>tuh <Plug>UpdateStatusHold
+    nmap <unique><buffer> <Leader>tut <Plug>UpdateStatusWait
+    nmap <unique><buffer> <Leader>tud <Plug>UpdateStatusDone
+    nmap <unique><buffer> <Leader>tua <Plug>UpdateStatusAbandoned
+    nmap <unique><buffer> <Leader>tsa <Plug>ShowActiveTasks
+    nmap <unique><buffer> <Leader>thr <Plug>HighlightReadyTasks
+    nmap <unique><buffer> <Leader>thw <Plug>HighlightWIPTasks
+    nmap <unique><buffer> <Leader>thh <Plug>HighlightHoldTasks
+    nmap <unique><buffer> <Leader>tht <Plug>HighlightWaitTasks
+    nmap <unique><buffer> <Leader>thn <Plug>HighlightNoTasks
+    nmap <unique><buffer> <Leader>tO  <Plug>AddTaskAbove
+    nmap <unique><buffer> <Leader>to  <Plug>AddTaskBelow
+    nmap <unique><buffer> <Leader>tan <Plug>AddNoteToTask
+    nmap <unique><buffer> <Leader>tac <Plug>AddChildTask
+    command -buffer -nargs=0 QTAddTaskBelow call <SID>AddTaskBelow()
     let b:quicktask_did_mappings = 1
 endif
 
@@ -631,7 +638,7 @@ endif
 if g:quicktask_fold_done_on_startup
     augroup quicktask
       au!
-      autocmd BufEnter * call <SID>HideTasks("DONE")
+      autocmd BufEnter * call <SID>HideTasks('\(✓ DONE\|✕ ABANDONED\)')
     augroup END
 endif
 
@@ -646,3 +653,13 @@ iabbrev <expr> :now:        <SID>GetTimestamp()
 " Compatibility option reset: {{{1
 let &cpoptions = s:cpo_save
 unlet s:cpo_save
+
+function! QTFix()
+  execute '%s/⯆ WIP/⯆ ⚙ WIP/g'
+  execute '%s/⯆ HOLD/⯆ ⏸ HOLD/g'
+  execute '%s/⯆ WAIT/⯆ ⧖ WAIT/g'
+  execute '%s/⯆ DONE/⯆ ✓ DONE/g'
+  execute '%s/⯆ ABANDONED/⯆ ✕ ABANDONED/g'
+endfunction
+
+command! QTFix call QTFix()

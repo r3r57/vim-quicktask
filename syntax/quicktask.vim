@@ -52,7 +52,7 @@ syn match   quicktaskTaskNote       /^\s\+[*]\s.*$/ nextgroup=quickTasktaskNoteC
 
 syn match   quicktaskTaskNoteCont   /^\s\+[^⯆⯈*@ ].*$/ contained nextgroup=quicktaskTaskNoteCont,quicktaskTaskNote skipnl
 
-syn match   quicktaskTaskTag        /^\s\+[@]\s\(Added\|Done\|Ticket\|DEADLINE\).*$/
+syn match   quicktaskTaskTag        /^\s\+[@]\s\(Added\|Done\|Abandoned\|Ticket\|DEADLINE\).*$/
                                     \ contains=quicktaskTaskTag,quicktaskTaskTagDeadline
 
 " The following items are case-sensitive.
@@ -61,7 +61,7 @@ syn case match
 " Highlight keywords in todo items and notes:
 syn keyword quicktaskTaskStatusReady          contained READY
 syn keyword quicktaskTaskStatusWIP            contained WIP
-syn keyword quicktaskTaskStatusDone           contained DONE
+syn keyword quicktaskTaskStatusDone           contained DONE ABANDONED
 syn keyword quicktaskTaskStatusWait           contained HOLD WAIT
 
 syn keyword quicktaskTaskTagDeadline          contained DEADLINE
