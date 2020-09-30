@@ -57,7 +57,7 @@ let s:one_indent = repeat(' ', &tabstop)
 
 " User-configurable options and their defaults {{{1
 if !exists('g:quicktask_autosave')
-    let g:quicktask_autosave = 0
+    let g:quicktask_autosave = 1
 endif
 
 if !exists('g:quicktask_task_insert_added')
@@ -637,11 +637,11 @@ endif
 
 " ============================================================================
 " Abbreviations {{{1
-iabbrev <expr> :today: <SID>GetDatestamp('today')
-iabbrev <expr> :tomorrow: <SID>GetDatestamp('tomorrow')
-iabbrev <expr> :yesterday: <SID>GetDatestamp('yesterday')
-iabbrev <expr> :nextweek: <SID>GetDatestamp('nextweek')
-iabbrev <expr> :now: <SID>GetTimestamp()
+iabbrev <expr> :today:      <SID>GetDatestamp('today')
+iabbrev <expr> :tomorrow:   <SID>GetDatestamp('tomorrow')
+iabbrev <expr> :yesterday:  <SID>GetDatestamp('yesterday')
+iabbrev <expr> :nextweek:   <SID>GetDatestamp('nextweek')
+iabbrev <expr> :now:        <SID>GetTimestamp()
 
 " Compatibility option reset: {{{1
 let &cpoptions = s:cpo_save
