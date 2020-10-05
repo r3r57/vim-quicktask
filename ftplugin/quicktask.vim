@@ -208,7 +208,7 @@ function! s:CheckChildrenDone()
   let child_line = -1
   while child_line != 0
     let child_line = s:FindChild(child_indent, offset_line, boundary_line)
-    if or(child_line == 0, getline(child_line) =~# '^\s*⯆\s✓ DONE')
+    if or(child_line == 0, getline(child_line) =~# '^\s*⯆\s\(✓ DONE\|✕ ABANDONED\)')
       let offset_line = child_line
     else
       call cursor(parent_line, 0)
@@ -654,12 +654,3 @@ iabbrev <expr> :now:        <SID>GetTimestamp()
 let &cpoptions = s:cpo_save
 unlet s:cpo_save
 
-function! QTFix()
-  execute '%s/⯆ WIP/⯆ ⚙ WIP/g'
-  execute '%s/⯆ HOLD/⯆ ⏸ HOLD/g'
-  execute '%s/⯆ WAIT/⯆ ⧖ WAIT/g'
-  execute '%s/⯆ DONE/⯆ ✓ DONE/g'
-  execute '%s/⯆ ABANDONED/⯆ ✕ ABANDONED/g'
-endfunction
-
-command! QTFix call QTFix()
