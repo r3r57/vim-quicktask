@@ -60,14 +60,6 @@ if !exists('g:quicktask_autosave')
     let g:quicktask_autosave = 1
 endif
 
-if !exists('g:quicktask_task_insert_added')
-    let g:quicktask_task_insert_added = 1
-endif
-
-if !exists('g:quicktask_task_added_include_time')
-    let g:quicktask_task_added_include_time = 0
-endif
-
 if !exists('g:quicktask_date_format')
     let g:quicktask_date_format = '%d.%m.%Y'
 endif
@@ -242,7 +234,7 @@ endfunction
 "
 " Add a 'skeleton' task to the file after the line given and at the indent
 " level specified.
-function! s:AddTask(after, indent, move_cursor)
+function! s:AddTask(after, indent, is_first_level, move_cursor)
     if a:indent > 0
         let physical_indent = repeat(' ', a:indent)
     else
@@ -252,14 +244,16 @@ function! s:AddTask(after, indent, move_cursor)
     " Compose the two lines to insert
     let new_task_lines = [ physical_indent . '⯆ READY ' ]
 
-    if g:quicktask_task_insert_added
-        let date_format = g:quicktask_date_format
-        if g:quicktask_task_added_include_time
-            let date_format = g:quicktask_date_format.' %H:%M'
-        endif
-        let date_line = physical_indent . s:one_indent . '@ Added ' . strftime(date_format)
+    let date_format = g:quicktask_date_format
+    let date_line = physical_indent . s:one_indent . '@ Added ' . strftime(date_format)
+
+    if a:is_first_level
+        let priority_line = physical_indent . s:one_indent . '@ Priority medium'
+        let new_task_lines += [ date_line , priority_line ]
+    else
         let new_task_lines += [ date_line ]
     endif
+
 
     call append(a:after, new_task_lines)
 
@@ -286,7 +280,7 @@ function! s:AddTaskAbove()
     let task_line_num = line('.')
 
     " Append the task, moving the cursor and starting insert
-    call s:AddTask(task_line_num-1, indent, 1)
+    call s:AddTask(task_line_num-1, indent, 1, 1)
 endfunction
 
 " ============================================================================
@@ -313,7 +307,7 @@ function! s:AddTaskBelow()
     endif
 
     " Append the task, moving the cursor and starting insert
-    call s:AddTask(task_line_num, indent, 1)
+    call s:AddTask(task_line_num, indent, 1, 1)
 endfunction
 
 " ============================================================================
@@ -332,7 +326,7 @@ function! s:AddChildTask()
     endif
 
     call s:FindTaskEnd(1)
-    call s:AddTask(line('.'), indent, 1)
+    call s:AddTask(line('.'), indent, 0, 1)
 endfunction
 
 " ============================================================================
