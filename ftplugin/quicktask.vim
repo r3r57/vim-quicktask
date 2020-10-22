@@ -583,6 +583,7 @@ nmap <silent> <Plug>NewDay                   :call <SID>NewDay()<CR>
 nmap <silent> <Plug>SelectTask               :call <SID>SelectTask()<CR>
 nmap <silent> <Plug>AddTicketTag             :call <SID>AddTag('Ticket', 1)<CR>
 nmap <silent> <Plug>AddDeadlineTag           :call <SID>AddTag('DEADLINE', 1)<CR>
+nmap <silent> <Plug>AddPriorityTag           :call <SID>AddTag('Priority', 1)<CR>
 nmap <silent> <Plug>UpdateStatusReady        :call <SID>UpdateStatus('READY')<CR>
 nmap <silent> <Plug>UpdateStatusWip          :call <SID>UpdateStatus('⚙ WIP')<CR>
 nmap <silent> <Plug>UpdateStatusHold         :call <SID>UpdateStatus('⏸ HOLD')<CR>
@@ -606,6 +607,7 @@ if ! exists('b:quicktask_did_mappings')
     nmap <unique><buffer> <Leader>tv  <Plug>SelectTask
     nmap <unique><buffer> <Leader>tat <Plug>AddTicketTag
     nmap <unique><buffer> <Leader>tad <Plug>AddDeadlineTag
+    nmap <unique><buffer> <Leader>tap <Plug>AddPriorityTag
     nmap <unique><buffer> <Leader>tur <Plug>UpdateStatusReady
     nmap <unique><buffer> <Leader>tuw <Plug>UpdateStatusWip
     nmap <unique><buffer> <Leader>tuh <Plug>UpdateStatusHold

@@ -41,7 +41,7 @@ syn case ignore
 syn match   quicktaskSection        '^=\+.*=\+\s*$'
                                     \ contains=quicktaskSection
 
-syn match   quicktaskTask           '^\(\s*\)[⯆⯈].\{-}\n\%(\1[^⯆⯈*]\{-}\n\)*'
+syn match   quicktaskTask           '^\s\+[⯆⯈].*$'
                                     \ contains=quicktaskTask,
                                     \ quicktaskTaskStatusReady,
                                     \ quicktaskTaskStatusWIP,
@@ -55,6 +55,13 @@ syn match   quicktaskTaskNoteCont   /^\s\+[^⯆⯈*@ ].*$/ contained nextgroup=q
 syn match   quicktaskTaskTag        /^\s\+[@]\s\(Added\|Done\|Abandoned\|Ticket\|DEADLINE\).*$/
                                     \ contains=quicktaskTaskTag,quicktaskTaskTagDeadline
 
+syn match   quicktaskTaskPriority   /^\s\+[@]\sPriority.*$/
+                                    \ contains=quicktaskTaskTag,
+                                    \ quicktaskTaskPriorityLow,
+                                    \ quicktaskTaskPriorityMedium,
+                                    \ quicktaskTaskPriorityHigh,
+                                    \ quicktaskTaskPriorityHighest
+
 " The following items are case-sensitive.
 syn case match
 
@@ -66,6 +73,11 @@ syn keyword quicktaskTaskStatusWait           contained HOLD WAIT
 
 syn keyword quicktaskTaskTagDeadline          contained DEADLINE
 
+syn keyword quicktaskTaskPriorityLow          contained low
+syn keyword quicktaskTaskPriorityMedium       contained med
+syn keyword quicktaskTaskPriorityHigh         contained hig
+syn keyword quicktaskTaskPriorityHighest      contained HIG
+
 " The remainder of items are case-insensitive.
 syn case ignore
 
@@ -73,19 +85,25 @@ hi Folded  ctermbg=NONE guibg=NONE
 hi Folded  ctermfg=grey guifg=grey
 
 " Highlight links
-hi def link quicktaskSection            Title
+hi def link quicktaskSection                Title
 
-hi def link quicktaskTask               SpecialComment
-hi def link quicktaskTaskStatusReady    Boolean
-hi def link quicktaskTaskStatusWIP      Boolean
-hi def link quicktaskTaskStatusDone     Boolean
-hi def link quicktaskTaskStatusWait     Constant
+hi def link quicktaskTask                   SpecialComment
+hi def link quicktaskTaskStatusReady        Boolean
+hi def link quicktaskTaskStatusWIP          Boolean
+hi def link quicktaskTaskStatusDone         Boolean
+hi def link quicktaskTaskStatusWait         Constant
 
-hi def link quicktaskTaskTag            Comment
-hi def link quicktaskTaskTagDeadline    Error
+hi def link quicktaskTaskTag                Comment
+hi def link quicktaskTaskTagDeadline        Error
 
-hi def link quicktaskTaskNote           String
-hi def link quicktaskTaskNoteCont       String
+hi def link quicktaskTaskNote               String
+hi def link quicktaskTaskNoteCont           String
+
+hi def link quicktaskTaskPriority           Comment
+hi def link quicktaskTaskPriorityLow        FoldColumn
+hi def link quicktaskTaskPriorityMedium     String
+hi def link quicktaskTaskPriorityHigh       Debug
+hi def link quicktaskTaskPriorityHighest    Error
 
 let b:current_syntax = 'quicktask'
 
