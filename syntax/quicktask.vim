@@ -74,9 +74,9 @@ syn keyword quicktaskTaskStatusWait           contained HOLD WAIT
 syn keyword quicktaskTaskTagDeadline          contained DEADLINE
 
 syn keyword quicktaskTaskPriorityLow          contained low
-syn keyword quicktaskTaskPriorityMedium       contained med
-syn keyword quicktaskTaskPriorityHigh         contained hig
-syn keyword quicktaskTaskPriorityHighest      contained HIG
+syn keyword quicktaskTaskPriorityMedium       contained medium
+syn keyword quicktaskTaskPriorityHigh         contained high
+syn keyword quicktaskTaskPriorityHighest      contained HIGH
 
 " The remainder of items are case-insensitive.
 syn case ignore
