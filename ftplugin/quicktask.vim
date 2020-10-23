@@ -212,6 +212,33 @@ function! s:CheckChildrenDone()
 endfunction
 
 " ============================================================================
+" CheckDayDone(): Find children task below the current task. {{{1
+"
+" Get the indent level of the current task and find a task below this one that
+" has the same indent. If the current task is a child, only find siblings
+" within the same parent.
+function! s:CheckDayDone()
+  let day_line = line('.')
+  let child_indent = &tabstop
+
+  let offset_line = day_line
+  let boundary_line = search('^$', 'nW')
+
+  let child_line = -1
+  while child_line != 0
+    let child_line = s:FindChild(child_indent, offset_line, boundary_line)
+    if or(child_line == 0, getline(child_line) =~# '^\s*⯆\s\(✓ DONE\|✕ ABANDONED\)')
+      let offset_line = child_line
+    else
+      call cursor(day_line, 0)
+      return child_line
+    endif
+  endwhile
+  call cursor(day_line, 0)
+  return 0
+endfunction
+
+" ============================================================================
 " SelectTask(): Create a linewise visual selection of the current task. {{{1
 function! s:SelectTask()
     call s:FindTaskStart(1)
@@ -547,15 +574,46 @@ function! CloseFoldIfOpen()
 endfunction
 
 " ============================================================================
-" HideTasks(): Fold all completed tasks. {{{1
+" CloseFoldIfOpenAndDone(): Quietly close a fold only if it is open. {{{1
+"
+" This is used when automatically opening and closing folded tasks based on
+" their status.
+function! CloseFoldIfOpenAndDayDone()
+    if s:CheckDayDone() == 0
+        call s:CloseFoldIfOpen()
+    endif
+endfunction
+
+" ============================================================================
+" FoldTasks(): Fold all completed tasks. {{{1
 "
 " The net result is that only incomplete (active) tasks remain open and
 " visible in the list.
-function! s:HideTasks(status)
+function! s:FoldTasks(status)
     let current_line = line('.')
-    execute 'normal! zR'
     execute 'g/⯆ '.a:status.'/call CloseFoldIfOpen()'
     call cursor(current_line, 0)
+endfunction
+
+" ============================================================================
+" FoldDaysDone(): Fold all completed tasks. {{{1
+"
+" The net result is that only incomplete (active) tasks remain open and
+" visible in the list.
+function! s:FoldDaysDone()
+    let current_line = line('.')
+    execute 'g/^=\+.*=\+\s*$/call CloseFoldIfOpenAndDone()'
+    call cursor(current_line, 0)
+endfunction
+
+" ============================================================================
+" FoldDoneDaysAndDoneTasks(): Fold all completed tasks. {{{1
+"
+" The net result is that only incomplete (active) tasks remain open and
+" visible in the list.
+function! s:FoldDoneDaysAndDoneTasks()
+    call s:FoldDaysDone()
+    call s:FoldTasks('\(✓ DONE\|✕ ABANDONED\)')
 endfunction
 
 " ============================================================================
@@ -584,7 +642,7 @@ nmap <silent> <Plug>UpdateStatusHold         :call <SID>UpdateStatus('⏸ HOLD')
 nmap <silent> <Plug>UpdateStatusWait         :call <SID>UpdateStatus('⧖ WAIT')<CR>
 nmap <silent> <Plug>UpdateStatusDone         :call <SID>UpdateStatus('✓ DONE')<CR>
 nmap <silent> <Plug>UpdateStatusAbandoned    :call <SID>UpdateStatus('✕ ABANDONED')<CR>
-nmap <silent> <Plug>ShowActiveTasks          :call <SID>HideTasks('\(✓ DONE\\|✕ ABANDONED\)')<CR>
+nmap <silent> <Plug>ShowActiveTasks          :call <SID>FoldDoneDaysAndDoneTasks()<CR>
 nmap <silent> <Plug>HighlightReadyTasks      :call <SID>HighlightTasks('READY')<CR>
 nmap <silent> <Plug>HighlightWIPTasks        :call <SID>HighlightTasks('⚙ WIP')<CR>
 nmap <silent> <Plug>HighlightHoldTasks       :call <SID>HighlightTasks('⏸ HOLD')<CR>
@@ -634,7 +692,7 @@ endif
 if g:quicktask_fold_done_on_startup
     augroup quicktask
       au!
-      autocmd BufEnter * call <SID>HideTasks('\(✓ DONE\|✕ ABANDONED\)')
+      autocmd BufEnter * call <SID>FoldDoneDaysAndDoneTasks()
     augroup END
 endif
 
