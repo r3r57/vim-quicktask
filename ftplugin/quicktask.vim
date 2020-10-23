@@ -574,13 +574,13 @@ function! CloseFoldIfOpen()
 endfunction
 
 " ============================================================================
-" CloseFoldIfOpenAndDone(): Quietly close a fold only if it is open. {{{1
+" CloseFoldIfOpenAndDayDone(): Quietly close a fold only if it is open. {{{1
 "
 " This is used when automatically opening and closing folded tasks based on
 " their status.
 function! CloseFoldIfOpenAndDayDone()
     if s:CheckDayDone() == 0
-        call s:CloseFoldIfOpen()
+        call CloseFoldIfOpen()
     endif
 endfunction
 
@@ -602,7 +602,7 @@ endfunction
 " visible in the list.
 function! s:FoldDaysDone()
     let current_line = line('.')
-    execute 'g/^=\+.*=\+\s*$/call CloseFoldIfOpenAndDone()'
+    execute 'g/^=\+.*=\+\s*$/call CloseFoldIfOpenAndDayDone()'
     call cursor(current_line, 0)
 endfunction
 
