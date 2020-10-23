@@ -261,7 +261,7 @@ endfunction
 "
 " Add a 'skeleton' task to the file after the line given and at the indent
 " level specified.
-function! s:AddTask(after, indent, is_first_level, move_cursor)
+function! s:AddTask(after, indent, move_cursor)
     if a:indent > 0
         let physical_indent = repeat(' ', a:indent)
     else
@@ -274,7 +274,7 @@ function! s:AddTask(after, indent, is_first_level, move_cursor)
     let date_format = g:quicktask_date_format
     let date_line = physical_indent . s:one_indent . '@ Added ' . strftime(date_format)
 
-    if a:is_first_level
+    if a:indent == &tabstop
         let priority_line = physical_indent . s:one_indent . '@ Priority medium'
         let new_task_lines += [ date_line , priority_line ]
     else
@@ -307,7 +307,7 @@ function! s:AddTaskAbove()
     let task_line_num = line('.')
 
     " Append the task, moving the cursor and starting insert
-    call s:AddTask(task_line_num-1, indent, 1, 1)
+    call s:AddTask(task_line_num-1, indent, 1)
 endfunction
 
 " ============================================================================
@@ -334,7 +334,7 @@ function! s:AddTaskBelow()
     endif
 
     " Append the task, moving the cursor and starting insert
-    call s:AddTask(task_line_num, indent, 1, 1)
+    call s:AddTask(task_line_num, indent, 1)
 endfunction
 
 " ============================================================================
@@ -353,7 +353,7 @@ function! s:AddChildTask()
     endif
 
     call s:FindTaskEnd(1)
-    call s:AddTask(line('.'), indent, 0, 1)
+    call s:AddTask(line('.'), indent, 1)
 endfunction
 
 " ============================================================================
