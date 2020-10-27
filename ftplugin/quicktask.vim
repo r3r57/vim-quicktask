@@ -434,7 +434,7 @@ function! s:AddTag(tag, move_cursor)
     let matched = 0
     while current_line <= line('$')
         " If we are still at the correct indent level
-        if match(getline(current_line), '\v^\s{'.indent.'}') == -1
+        if or(match(getline(current_line), '\v^\s{'.indent.'}') == -1, match(getline(current_line), '\v^\s{'.indent.'}⯆') == 0)
             " Move the cursor to the line preceding this one.
             let start = current_line - 1
             " Break out, we have arrived.
