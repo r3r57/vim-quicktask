@@ -88,10 +88,10 @@ hi Folded  ctermfg=grey guifg=grey
 hi def link quicktaskSection                Title
 
 hi def link quicktaskTask                   SpecialComment
-hi def link quicktaskTaskStatusReady        Boolean
-hi def link quicktaskTaskStatusWIP          Boolean
-hi def link quicktaskTaskStatusDone         Boolean
-hi def link quicktaskTaskStatusWait         Constant
+hi def quicktaskTaskStatusReady             gui=bold guifg=#008700
+hi def quicktaskTaskStatusWIP               gui=bold guifg=#8700af
+hi def quicktaskTaskStatusDone              gui=bold guifg=#008700
+hi def quicktaskTaskStatusWait              gui=bold guifg=#d75f00
 
 hi def link quicktaskTaskTag                Comment
 hi def link quicktaskTaskTagDeadline        Error
