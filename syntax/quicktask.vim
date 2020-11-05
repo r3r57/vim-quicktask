@@ -57,6 +57,7 @@ syn match   quicktaskTaskTag        /^\s\+[@]\s\(Added\|Done\|Abandoned\|Ticket\
 
 syn match   quicktaskTaskPriority   /^\s\+[@]\sPriority.*$/
                                     \ contains=quicktaskTaskTag,
+                                    \ quicktaskTaskPriorityUltraLow,
                                     \ quicktaskTaskPriorityLow,
                                     \ quicktaskTaskPriorityMedium,
                                     \ quicktaskTaskPriorityHigh,
@@ -73,6 +74,7 @@ syn keyword quicktaskTaskStatusWait           contained HOLD WAIT
 
 syn keyword quicktaskTaskTagDeadline          contained DEADLINE
 
+syn keyword quicktaskTaskPriorityLow          contained ultralow
 syn keyword quicktaskTaskPriorityLow          contained low
 syn keyword quicktaskTaskPriorityMedium       contained medium
 syn keyword quicktaskTaskPriorityHigh         contained high
@@ -100,7 +102,8 @@ hi def link quicktaskTaskNote               String
 hi def link quicktaskTaskNoteCont           String
 
 hi def link quicktaskTaskPriority           Comment
-hi def link quicktaskTaskPriorityLow        FoldColumn
+hi def quicktaskTaskPriorityUltraLow        guifg=#005faf
+hi def quicktaskTaskPriorityLow             guifg=#0087af
 hi def link quicktaskTaskPriorityMedium     String
 hi def link quicktaskTaskPriorityHigh       Debug
 hi def link quicktaskTaskPriorityHighest    Error
